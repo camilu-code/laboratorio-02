@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+import random
 
 def cargar_tasas(ruta):
  """"lee un archivo json y retorna un objeto"""
@@ -23,9 +24,31 @@ def registrar_transaccion(producto, precio_convertido, moneda, ruta_log):
   #Escribir una linea nueva en el archivo de registropp
   archivo.write(f"{fecha} | {producto}: {precio_convertido:.2f} {moneda}\n")
 
+
+
+def actualizar_tasas(ruta):
+    """Simula una actualización de tasas cambiándolas aleatoriamente ±2%"""
+    with open(ruta, "r+", encoding="utf-8") as archivo:
+        tasas = json.load(archivo)
+        
+        # Simular API: Cambiar tasas aleatoriamente ±2%
+        for moneda in tasas["USD"]:
+            tasas["USD"][moneda] *= 0.98 + (0.04 * random.random())
+        
+        tasas["actualizacion"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        # Reescribir archivo con las tasas actualizadas
+        archivo.seek(0)
+        json.dump(tasas, archivo, indent=2, ensure_ascii=False)
+        archivo.truncate()
+
+
 # Ejemplo de uso
 if __name__ == "__main__":
- tasas = cargar_tasas("data/tasas.json")
- precio_usd = 100.00
- precio_eur = convertir(precio_usd, "EUR", tasas)
-registrar_transaccion("Laptop", precio_eur, "EUR", "logs/historial.txt")
+ ##Actualizar las  tasas
+  actualizar_tasas("data/tasas.json") 
+  tasas = cargar_tasas("data/tasas.json")
+  precio_usd = 100.00
+  precio_eur = convertir(precio_usd, "EUR", tasas)
+  registrar_transaccion("Laptop", precio_eur, "EUR", "logs/historial.txt")
+ 
